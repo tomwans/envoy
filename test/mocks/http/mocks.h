@@ -207,7 +207,6 @@ public:
 
 class MockStreamFilterCallbacksBase {
 public:
-  std::function<void()> reset_callback_;
   Event::MockDispatcher dispatcher_;
   testing::NiceMock<AccessLog::MockRequestInfo> request_info_;
   std::shared_ptr<Router::MockRoute> route_;
@@ -221,7 +220,6 @@ public:
   ~MockStreamDecoderFilterCallbacks();
 
   // Http::StreamFilterCallbacks
-  MOCK_METHOD1(addResetStreamCallback, void(std::function<void()> callback));
   MOCK_METHOD0(connectionId, uint64_t());
   MOCK_METHOD0(ssl, Ssl::Connection*());
   MOCK_METHOD0(dispatcher, Event::Dispatcher&());
@@ -255,7 +253,6 @@ public:
   ~MockStreamEncoderFilterCallbacks();
 
   // Http::StreamFilterCallbacks
-  MOCK_METHOD1(addResetStreamCallback, void(std::function<void()> callback));
   MOCK_METHOD0(connectionId, uint64_t());
   MOCK_METHOD0(ssl, Ssl::Connection*());
   MOCK_METHOD0(dispatcher, Event::Dispatcher&());
@@ -279,6 +276,9 @@ public:
   MockStreamDecoderFilter();
   ~MockStreamDecoderFilter();
 
+  // Http::StreamFilterBase
+  MOCK_METHOD0(onDestroy, void());
+
   // Http::StreamDecoderFilter
   MOCK_METHOD2(decodeHeaders, FilterHeadersStatus(HeaderMap& headers, bool end_stream));
   MOCK_METHOD2(decodeData, FilterDataStatus(Buffer::Instance& data, bool end_stream));
@@ -286,13 +286,15 @@ public:
   MOCK_METHOD1(setDecoderFilterCallbacks, void(StreamDecoderFilterCallbacks& callbacks));
 
   Http::StreamDecoderFilterCallbacks* callbacks_{};
-  ReadyWatcher reset_stream_called_;
 };
 
 class MockStreamEncoderFilter : public StreamEncoderFilter {
 public:
   MockStreamEncoderFilter();
   ~MockStreamEncoderFilter();
+
+  // Http::StreamFilterBase
+  MOCK_METHOD0(onDestroy, void());
 
   // Http::MockStreamEncoderFilter
   MOCK_METHOD2(encodeHeaders, FilterHeadersStatus(HeaderMap& headers, bool end_stream));

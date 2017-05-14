@@ -274,7 +274,6 @@ private:
     virtual const HeaderMapPtr& trailers() PURE;
 
     // Http::StreamFilterCallbacks
-    void addResetStreamCallback(std::function<void()> callback) override;
     uint64_t connectionId() override;
     Ssl::Connection* ssl() override;
     Event::Dispatcher& dispatcher() override;
@@ -445,7 +444,6 @@ private:
     std::list<ActiveStreamEncoderFilterPtr> encoder_filters_;
     std::list<Http::AccessLog::InstanceSharedPtr> access_log_handlers_;
     Stats::TimespanPtr request_timer_;
-    std::list<std::function<void()>> reset_callbacks_;
     State state_;
     AccessLog::RequestInfoImpl request_info_;
     std::string downstream_address_;
@@ -461,9 +459,15 @@ private:
   void checkForDeferredClose();
 
   /**
-   * Do a delayed destruction of a stream to allow for stack unwind.
+   * Do a delayed destruction of a stream to allow for stack unwind. Also calls onDestroy() for
+   * each filter.
    */
-  void destroyStream(ActiveStream& stream);
+  void doDeferredStreamDestroy(ActiveStream& stream);
+
+  /**
+   * fixfix
+   */
+  void doEndStream(ActiveStream& stream);
 
   void resetAllStreams();
   void onIdleTimeout();

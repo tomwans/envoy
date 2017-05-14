@@ -70,12 +70,6 @@ public:
   virtual ~StreamFilterCallbacks() {}
 
   /**
-   * Register a callback that will get called when the underlying stream has been reset (either
-   * upstream reset from another filter or downstream reset from the remote side).
-   */
-  virtual void addResetStreamCallback(std::function<void()> callback) PURE;
-
-  /**
    * @return uint64_t the ID of the originating connection for logging purposes.
    */
   virtual uint64_t connectionId() PURE;
@@ -199,12 +193,20 @@ public:
 };
 
 /**
+ * fixfix
+ */
+class StreamFilterBase {
+public:
+  virtual ~StreamFilterBase() {}
+
+  virtual void onDestroy() PURE;
+};
+
+/**
  * Stream decoder filter interface.
  */
-class StreamDecoderFilter {
+class StreamDecoderFilter : public StreamFilterBase {
 public:
-  virtual ~StreamDecoderFilter() {}
-
   /**
    * Called with decoded headers, optionally indicating end of stream.
    * @param headers supplies the decoded headers map.
@@ -283,10 +285,8 @@ public:
 /**
  * Stream encoder filter interface.
  */
-class StreamEncoderFilter {
+class StreamEncoderFilter : public StreamFilterBase {
 public:
-  virtual ~StreamEncoderFilter() {}
-
   /**
    * Called with headers to be encoded, optionally indicating end of stream.
    * @param headers supplies the headers to be encoded.
