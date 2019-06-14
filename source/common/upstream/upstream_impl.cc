@@ -692,6 +692,9 @@ ClusterImplBase::ClusterImplBase(
   priority_set_.getOrCreateHostSet(0);
   priority_set_.addPriorityUpdateCb(
       [this](uint32_t, const HostVector& hosts_added, const HostVector& hosts_removed) {
+        // any modifications in membership counts as an update
+        info_->stats().membership_updated_.inc();
+
         if (!hosts_added.empty() || !hosts_removed.empty()) {
           info_->stats().membership_change_.inc();
         }

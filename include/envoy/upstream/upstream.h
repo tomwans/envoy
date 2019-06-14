@@ -523,6 +523,7 @@ public:
   COUNTER(lb_zone_routing_cross_zone)                                                              \
   COUNTER(lb_zone_routing_sampled)                                                                 \
   COUNTER(membership_change)                                                                       \
+  COUNTER(membership_updated)                                                                      \
   COUNTER(original_dst_host_invalid)                                                               \
   COUNTER(retry_or_shadow_abandoned)                                                               \
   COUNTER(update_attempt)                                                                          \

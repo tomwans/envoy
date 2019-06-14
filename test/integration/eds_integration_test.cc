@@ -232,32 +232,38 @@ TEST_P(EdsIntegrationTest, EndpointWarmingFailedHc) {
 // Validate that health status updates are consumed from EDS.
 TEST_P(EdsIntegrationTest, HealthUpdate) {
   initializeTest(false);
-  // Initial state, no cluster members.
+  // Initial state, no cluster members, but membership updated.
+  EXPECT_EQ(1, test_server_->counter("cluster.cluster_0.membership_updated")->value());
   EXPECT_EQ(0, test_server_->counter("cluster.cluster_0.membership_change")->value());
   EXPECT_EQ(0, test_server_->gauge("cluster.cluster_0.membership_total")->value());
   EXPECT_EQ(0, test_server_->gauge("cluster.cluster_0.membership_healthy")->value());
   // 2/2 healthy endpoints.
   setEndpoints(2, 2, 0);
+  EXPECT_EQ(2, test_server_->counter("cluster.cluster_0.membership_updated")->value());
   EXPECT_EQ(1, test_server_->counter("cluster.cluster_0.membership_change")->value());
   EXPECT_EQ(2, test_server_->gauge("cluster.cluster_0.membership_total")->value());
   EXPECT_EQ(2, test_server_->gauge("cluster.cluster_0.membership_healthy")->value());
   // Drop to 0/2 healthy endpoints.
   setEndpoints(2, 0, 0);
+  EXPECT_EQ(3, test_server_->counter("cluster.cluster_0.membership_updated")->value());
   EXPECT_EQ(1, test_server_->counter("cluster.cluster_0.membership_change")->value());
   EXPECT_EQ(2, test_server_->gauge("cluster.cluster_0.membership_total")->value());
   EXPECT_EQ(0, test_server_->gauge("cluster.cluster_0.membership_healthy")->value());
   // Increase to 1/2 healthy endpoints.
   setEndpoints(2, 1, 0);
+  EXPECT_EQ(4, test_server_->counter("cluster.cluster_0.membership_updated")->value());
   EXPECT_EQ(1, test_server_->counter("cluster.cluster_0.membership_change")->value());
   EXPECT_EQ(2, test_server_->gauge("cluster.cluster_0.membership_total")->value());
   EXPECT_EQ(1, test_server_->gauge("cluster.cluster_0.membership_healthy")->value());
   // Add host and modify health to 2/3 healthy endpoints.
   setEndpoints(3, 2, 0);
+  EXPECT_EQ(5, test_server_->counter("cluster.cluster_0.membership_updated")->value());
   EXPECT_EQ(2, test_server_->counter("cluster.cluster_0.membership_change")->value());
   EXPECT_EQ(3, test_server_->gauge("cluster.cluster_0.membership_total")->value());
   EXPECT_EQ(2, test_server_->gauge("cluster.cluster_0.membership_healthy")->value());
   // Modify health to 2/3 healthy and 1/3 degraded.
   setEndpoints(3, 2, 1);
+  EXPECT_EQ(6, test_server_->counter("cluster.cluster_0.membership_updated")->value());
   EXPECT_EQ(2, test_server_->counter("cluster.cluster_0.membership_change")->value());
   EXPECT_EQ(3, test_server_->gauge("cluster.cluster_0.membership_total")->value());
   EXPECT_EQ(2, test_server_->gauge("cluster.cluster_0.membership_healthy")->value());
